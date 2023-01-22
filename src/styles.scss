@@ -1,0 +1,19 @@
+body {
+  background-color: antiquewhite;
+}
+
+section {
+  max-width: 200px;
+
+  display: flex;
+  flex-direction: row;
+}
+
+.editForm {
+  display: flex;
+  flex-direction: column;
+}
+
+.hide {
+  display: none;
+}
