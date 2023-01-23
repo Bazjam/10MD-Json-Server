@@ -6,7 +6,12 @@ type Animal = {
   description: string;
 };
 
-const randomImg = "https://picsum.photos/id/237/200/300";
+const randomImg = () => {
+  let result = Math.floor(Math.random() * 80) +1;
+  const randomImg = "https://picsum.photos/id/237/200/300";
+  return `"https://picsum.photos/id/${result}/200/300"`
+}
+
 const wrapper = document.querySelector("[data-insert-cards]");
 
 
@@ -14,7 +19,9 @@ document.addEventListener("DOMContentLoaded", function () {
   //when Web Page Start, load getData(counter)
   loadAllData();
 });
-//---------------------------GET------------------------------------------------
+
+
+//---GET---------------------------------------------------------------------GET---
 
 const loadAllData = () => {
   axios.get<Animal[]>("http://localhost:3000/animals").then(({ data }) => {
@@ -24,7 +31,7 @@ const loadAllData = () => {
 
       card.innerHTML = ` 
         <div class="titleForme">      
-        <img class="img-responsive" src=${randomImg}>
+        <img class="img-responsive" src=${randomImg()}>
         
         <p class="">${element.name}</p>
         <p class="">${element.description}</p>
@@ -47,52 +54,52 @@ const loadAllData = () => {
   });
 };
 
-//---------------------------New post------------------------------------------------
-const inputText = document.querySelector("[data-input-text]") as HTMLInputElement; //input dlja novoj kartochki
-const textareaText = document.querySelector("[data-textarea-text]") as HTMLInputElement; //textarea dlja novoj kartochki
-const btnAddNewObj = document.querySelector("[data-add-btn]"); //knopka dlja novoj kartochki
+
+//---post------------------------New post---------------------------------------------post---
+
+const inputText = document.querySelector("[data-input-text]") as HTMLInputElement; //input for new card
+const textareaText = document.querySelector("[data-textarea-text]") as HTMLInputElement; //textarea for new card
+const btnAddNewObj = document.querySelector("[data-add-btn]"); //button for new card
 
 let userTitleText = "";
 let userDescriptionText = "";
 
 inputText.addEventListener("change", function () {
-  userTitleText = this.value;  //otlavlivajet izmenenija => sohranjaet v peremennuju
+  userTitleText = this.value;  //catch the changes => save in 'let'
 });
 
 textareaText.addEventListener("change", function () {
-  userDescriptionText = this.value;   //otlavlivajet izmenenija => sohranjaet v peremennuju
+  userDescriptionText = this.value;   //catch the changes => save in 'let'
 });
 
 btnAddNewObj.addEventListener("click", () => {
-  axios
-    .post<Animal>("http://localhost:3000/animals", {
-      name: userTitleText, //text iz inputa
-      description: userDescriptionText, //text iz textarea
-    })
-    .then(() => {
-      wrapper.innerHTML = ""; //opustoshitj wrapper ot kartochek
-      loadAllData(); //zanovo zagruzitj dannie
-      inputText.value = ""; //opustoshili input
-      textareaText.value = ""; //opustoshili textarea
-    });
+  axios.post<Animal>("http://localhost:3000/animals", {
+    name: userTitleText, //text from input
+    description: userDescriptionText, //text from textarea
+  })
+  .then(() => {
+    wrapper.innerHTML = ""; //reset wrapper from card
+    loadAllData(); //again load data
+    inputText.value = ""; //reset input
+    textareaText.value = ""; //reset textarea
+  });
 });
 
 //-----------------------------------------------------------------------------------
 
-
 const initEvents = () => { // only when cards are loaded
-  //sobirajem vse elementi s kartochki
-  const btnEdit = document.querySelectorAll("[data-edit-btn]") as NodeListOf<HTMLElement>; // vse edit knopki
-  const btnDelete = document.querySelectorAll("[data-delete-btn]") as NodeListOf<HTMLElement>; // vse delete knopki
-  const cardInputText = document.querySelectorAll(`[data-card-input-text]`) as NodeListOf<HTMLInputElement>; //vse inputi
-  const cardInputTextArea = document.querySelectorAll(`[data-card-text-area-text]`) as NodeListOf<HTMLInputElement>; //vse textarea
+  //all elements in cards
+  const btnEdit = document.querySelectorAll("[data-edit-btn]") as NodeListOf<HTMLElement>; // all edit buttons 
+  const btnDelete = document.querySelectorAll("[data-delete-btn]") as NodeListOf<HTMLElement>; // all delete buttons 
+  const cardInputText = document.querySelectorAll(`[data-card-input-text]`) as NodeListOf<HTMLInputElement>; //all inputs
+  const cardInputTextArea = document.querySelectorAll(`[data-card-text-area-text]`) as NodeListOf<HTMLInputElement>; //all textarea
   const btnUpdate = document.querySelectorAll("[data-update-btn]") as NodeListOf<HTMLElement>;
 
   let cardTitleText = "";
   let cardDescriptionText = "";
 
-  // dobavlajem knopke edit click event
-  btnEdit.forEach((btn) => { //vsem edit knopkam
+  // add button-edit click event
+  btnEdit.forEach((btn) => { //all cards edit buttons
     btn.addEventListener("click", () => {
       
       const cardID = btn.dataset.editBtn; 
@@ -101,7 +108,7 @@ const initEvents = () => { // only when cards are loaded
     });
   });
 
-  // dobavlajem knopke delete click event
+  // add button-delete click event
   btnDelete.forEach((btn) => {
     btn.addEventListener("click", () => {
       const cardID = btn.dataset.deleteBtn;
@@ -109,13 +116,13 @@ const initEvents = () => { // only when cards are loaded
     });
   });
 
-  // dobavljaem inputu change event
+  // add input change event
   cardInputText.forEach((cardInput) => {
     cardInput.addEventListener("change", function () {
       cardTitleText = this.value;
     });
   });
-  // dobavljaem textarea inputu change event
+  // add textarea input change event
   cardInputTextArea.forEach((cardInput) => {
     cardInput.addEventListener("change", function () {
       cardDescriptionText = this.value;
@@ -136,24 +143,21 @@ const initEvents = () => { // only when cards are loaded
 const putCard = (title:string,description:string, card:string) => {
   
   axios.put<Animal>(`http://localhost:3000/animals/${card}`, {
-    name: title, //text iz inputa
-    description: description //text iz textarea
+    name: title, //text from input
+    description: description //text from textarea
   })
   .then(() => {
-    wrapper.innerHTML = ""; //opustoshitj wrapper ot kartochek
-    loadAllData(); //zanovo zagruzitj dannie
+    wrapper.innerHTML = ""; //remove from page old cards
+    loadAllData(); //load new data
   });
 }
-
-      
 
 //---------------------------DELETE------------------------------------------------
 
 const deleteCard = (card: number) => {
   axios.delete<Animal>(`http://localhost:3000/animals/${card}`).then(() => {
-    wrapper.innerHTML = ""; //opustoshitj vse kartocki
-    loadAllData(); //zanovo zagruzitj dannie
-    console.log(`del`);
+    wrapper.innerHTML = ""; //remove from page old cards
+    loadAllData(); //load new data
   });
 };
 
