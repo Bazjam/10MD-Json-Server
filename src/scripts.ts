@@ -12,8 +12,12 @@ const wrapper = document.querySelector("[data-insert-cards]");
 
 const btnAddNewObj = document.querySelector("[data-add-btn]");
 
-const inputText = document.querySelector("[data-input-text]") as HTMLInputElement;
-const textareaText = document.querySelector("[data-textarea-text]") as HTMLInputElement;
+const inputText = document.querySelector(
+  "[data-input-text]"
+) as HTMLInputElement;
+const textareaText = document.querySelector(
+  "[data-textarea-text]"
+) as HTMLInputElement;
 
 document.addEventListener("DOMContentLoaded", function () {
   //when Web Page Start, load getData(counter)
@@ -23,43 +27,38 @@ document.addEventListener("DOMContentLoaded", function () {
 const loadAllData = () => {
   axios.get<Animal[]>("http://localhost:3000/animals").then(({ data }) => {
     data.forEach((element) => {
-        const card = document.createElement("div"); //     <div class="card-wrapper">
-        card.classList.add("card-wrapper");
+      const card = document.createElement("div"); //     <div class="card-wrapper">
+      card.classList.add("card-wrapper");
 
-        card.innerHTML = ` 
-        <div class="titleForme">                  
+      card.innerHTML = ` 
+        <div class="titleForme">      
         <img class="img-responsive" src=${randomImg}>
         
         <p class="">${element.name}</p>
         <p class="">${element.description}</p>
         
         <button data-edit-btn="${element.id}">Edit</button>
-        <button>Delete</button>
-        </div>
-        <br>
+        <button data-delete-btn="${element.id}">Delete</button>
+        </div><br>
+                
+        <div data-wrapper-form2="${element.id}" class="editForm hide">
+        <input data-card-input-text="${element.id}" type="text" id="text" rows="10" placeholder="New Title"></label><br>
         
-        <div data-wrapper-form="${element.id}" class="editForm hide">
-        <input type="text" id="text" rows="10" placeholder="New Title"></label>
-        <br>
-        <textarea id="text" rows="10" cols="15" placeholder="New description"></textarea>
-        <br>
-        <button data-update-btn>Update</button>
+        <textarea data-card-text-area-text="${element.id}" id="text" rows="10" cols="15" placeholder="New description"></textarea><br>
+        
+        <button data-update-btn="${element.id}">Update</button>
         </div>
         <br><br><br><br>`;
-        wrapper.append(card);
-      
+      wrapper.append(card);
     });
     initEvents();
   });
-  
 };
 
-//---------------------------------------------------------------------------
+//---------------------------EDIT------------------------------------------------
 
 let userTitleText = "";
 let userDescriptionText = "";
-
-
 
 inputText.addEventListener("change", function () {
   userTitleText = this.value;
@@ -72,37 +71,76 @@ textareaText.addEventListener("change", function () {
 });
 
 const initEvents = () => {
+  const btnEdit = document.querySelectorAll(
+    "[data-edit-btn]"
+  ) as NodeListOf<HTMLElement>; //All data attribute
 
-  const btnEdit = document.querySelectorAll("[data-edit-btn]") as NodeListOf<HTMLElement>;   //All data attribute 
-  // const btnUpdate = document.querySelector("[data-update-btn]");
-  
-  
-  btnEdit.forEach((btn) => {                                      //All btn with data-edit-btn
-    btn.addEventListener("click", () => {                         // povesitj na vse knopki Event click
-      const cardID = btn.dataset.editBtn;                         // Dataset zabiraem value iz data attribute ([data-wrapper-form="2"])
-      const wrapperForm2 = document.querySelector(`[data-wrapper-form="${cardID}"]`);
+  btnEdit.forEach((btn) => {
+    //All btn with data-edit-btn
+    btn.addEventListener("click", () => {
+      // povesitj na vse knopki Event click
+      const cardID = btn.dataset.editBtn; // Dataset zabiraem value iz data attribute ([data-wrapper-form="2"])
+      const wrapperForm2 = document.querySelector(
+        `[data-wrapper-form2="${cardID}"]`
+      );
+      console.log(cardID);
+
       wrapperForm2.classList.remove("hide");
     });
   });
-  
-  // btnEdit.addEventListener("click", () => {
-    //   wrapperForm2.classList.remove("hide");
-  // });
 
-  // btnUpdate.addEventListener("click", () => {
-  //   wrapperForm2.classList.add("hide");
-  // });
+  let cardTextArea = document.querySelector(
+    `[data-card-text-area-text]`
+  ) as unknown as NodeListOf<HTMLElement>;
+  const cardInputText = document.querySelector(`[data-card-input-text]`);
+
+  // const cardTextAreaText = document.querySelector(`data-card-text-area-text="${cardID}"]`);
+
+  cardInputText.addEventListener("change", function () {
+    cardTextArea = this.value;
+  });
+
+  const btnUpdate = document.querySelectorAll(
+    "[data-update-btn]"
+  ) as NodeListOf<HTMLElement>;
+
+  btnUpdate.forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const cardID = btn.dataset.updateBtn;
+    });
+  });
+
+  //---------------------------DELETE------------------------------------------------
+
+  const btnDelete = document.querySelectorAll("[data-delete-btn]") as NodeListOf<HTMLElement>;
+  btnDelete.forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const cardID = btn.dataset.deleteBtn;
+      deleteCard(parseInt(cardID));                               // parseInt() - transform string to number
+    });
+  });
 };
 
-btnAddNewObj.addEventListener("click", () => {
+const deleteCard = (card:number) => {
   axios
-    .post<Animal>("http://localhost:3000/animals", {
+    .delete<Animal>(`http://localhost:3000/animals/${card}`)
+    .then(() => {
+      wrapper.innerHTML = "";                                         //opustoshitj vse kartocki
+      loadAllData();                                                  //zanovo zagruzitj dannie
+      console.log(`del`);
+    });
+};
+//---------------------------------------------------------------------------
+
+
+btnAddNewObj.addEventListener("click", () => {
+  axios.post<Animal>("http://localhost:3000/animals", {
       name: userTitleText,
       description: userDescriptionText,
     })
     .then(() => {
-      wrapper.innerHTML = ""; //opustoshitj vse kartocki
-      loadAllData(); //zanovo zagruzitj dannie
+      wrapper.innerHTML = "";                                       //opustoshitj vse kartocki
+      loadAllData();                                                //zanovo zagruzitj dannie
       inputText.value = "";
       textareaText.value = "";
     });
