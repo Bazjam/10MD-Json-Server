@@ -8,26 +8,24 @@ type Animal = {
 
 const randomImg = () => {
   let result = Math.floor(Math.random() * 80) +1;
-  const randomImg = "https://picsum.photos/id/237/200/300";
   return `"https://picsum.photos/id/${result}/200/300"`
 }
 
 const wrapper = document.querySelector("[data-insert-cards]");
-
 
 document.addEventListener("DOMContentLoaded", function () {
   //when Web Page Start, load getData(counter)
   loadAllData();
 });
 
-
 //---GET---------------------------------------------------------------------GET---
-
 const loadAllData = () => {
-  axios.get<Animal[]>("http://localhost:3000/animals").then(({ data }) => {
+  axios
+    .get<Animal[]>("http://localhost:3000/animals")
+    .then(({ data }) => {
     data.forEach((element) => {
-      const card = document.createElement("div"); //     <div class="card-wrapper">
-      card.classList.add("card-wrapper");
+
+      const card = document.createElement("div");
 
       card.innerHTML = ` 
         <div class="titleForme">      
@@ -39,7 +37,7 @@ const loadAllData = () => {
         <button data-edit-btn="${element.id}">Edit</button>
         <button data-delete-btn="${element.id}">Delete</button>
         </div><br>
-                
+      
         <div data-wrapper-form="${element.id}" class="editForm hide">
 
         <input data-card-input-text="${element.id}" type="text" id="text" rows="10" placeholder="New Title"></label><br>
@@ -54,11 +52,10 @@ const loadAllData = () => {
   });
 };
 
+//---------------------------New post---------------------------------------------
 
-//---post------------------------New post---------------------------------------------post---
-
-const inputText = document.querySelector("[data-input-text]") as HTMLInputElement; //input for new card
-const textareaText = document.querySelector("[data-textarea-text]") as HTMLInputElement; //textarea for new card
+const inputText = document.querySelector<HTMLInputElement>("[data-input-text]"); //input for new card
+const textareaText = document.querySelector<HTMLInputElement>("[data-textarea-text]"); //textarea for new card
 const btnAddNewObj = document.querySelector("[data-add-btn]"); //button for new card
 
 let userTitleText = "";
@@ -73,10 +70,13 @@ textareaText.addEventListener("change", function () {
 });
 
 btnAddNewObj.addEventListener("click", () => {
-  axios.post<Animal>("http://localhost:3000/animals", {
+
+  axios
+  .post<Animal>("http://localhost:3000/animals", {
     name: userTitleText, //text from input
     description: userDescriptionText, //text from textarea
-  })
+    })
+
   .then(() => {
     wrapper.innerHTML = ""; //reset wrapper from card
     loadAllData(); //again load data
@@ -85,15 +85,13 @@ btnAddNewObj.addEventListener("click", () => {
   });
 });
 
-//-----------------------------------------------------------------------------------
-
 const initEvents = () => { // only when cards are loaded
   //all elements in cards
-  const btnEdit = document.querySelectorAll("[data-edit-btn]") as NodeListOf<HTMLElement>; // all edit buttons 
-  const btnDelete = document.querySelectorAll("[data-delete-btn]") as NodeListOf<HTMLElement>; // all delete buttons 
-  const cardInputText = document.querySelectorAll(`[data-card-input-text]`) as NodeListOf<HTMLInputElement>; //all inputs
-  const cardInputTextArea = document.querySelectorAll(`[data-card-text-area-text]`) as NodeListOf<HTMLInputElement>; //all textarea
-  const btnUpdate = document.querySelectorAll("[data-update-btn]") as NodeListOf<HTMLElement>;
+  const btnEdit = document.querySelectorAll<HTMLInputElement>("[data-edit-btn]"); // all edit buttons 
+  const btnDelete = document.querySelectorAll<HTMLInputElement>("[data-delete-btn]"); // all delete buttons 
+  const cardInputText = document.querySelectorAll<HTMLInputElement>(`[data-card-input-text]`); //all inputs
+  const cardInputTextArea = document.querySelectorAll<HTMLInputElement>(`[data-card-text-area-text]`); //all textarea
+  const btnUpdate = document.querySelectorAll<HTMLInputElement>("[data-update-btn]");
 
   let cardTitleText = "";
   let cardDescriptionText = "";
@@ -122,6 +120,7 @@ const initEvents = () => { // only when cards are loaded
       cardTitleText = this.value;
     });
   });
+
   // add textarea input change event
   cardInputTextArea.forEach((cardInput) => {
     cardInput.addEventListener("change", function () {
@@ -137,34 +136,29 @@ const initEvents = () => { // only when cards are loaded
   });
 };
 
-
 //---------------------------UPDATE------------------------------------------------
 
 const putCard = (title:string,description:string, card:string) => {
   
-  axios.put<Animal>(`http://localhost:3000/animals/${card}`, {
-    name: title, //text from input
-    description: description //text from textarea
-  })
-  .then(() => {
-    wrapper.innerHTML = ""; //remove from page old cards
-    loadAllData(); //load new data
+  axios
+    .put<Animal>(`http://localhost:3000/animals/${card}`, {
+      name: title, //text from input
+      description: description //text from textarea
+    })
+
+    .then(() => {
+      wrapper.innerHTML = ""; //remove from page old cards
+      loadAllData(); //load new data
   });
 }
 
 //---------------------------DELETE------------------------------------------------
 
 const deleteCard = (card: number) => {
-  axios.delete<Animal>(`http://localhost:3000/animals/${card}`).then(() => {
-    wrapper.innerHTML = ""; //remove from page old cards
-    loadAllData(); //load new data
+  axios
+    .delete<Animal>(`http://localhost:3000/animals/${card}`)
+    .then(() => {
+      wrapper.innerHTML = ""; //remove from page old cards
+      loadAllData(); //load new data
   });
 };
-
-
-
-
-
-
-
-
